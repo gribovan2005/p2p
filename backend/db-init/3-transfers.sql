@@ -1,0 +1,7 @@
+CREATE TABLE transfers (
+    id SERIAL PRIMARY KEY,
+    from_account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    to_account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    amount INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+); 

@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: p2p_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./backend/db-init/:/docker-entrypoint-initdb.d/
+    networks:
+      - p2pnet
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/p2p_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+    depends_on:
+      - db
+    ports:
+      - "8081:8081"
+    networks:
+      - p2pnet
+
+  frontend:
+    build: ./frontend
+    restart: always
+    networks:
+      - p2pnet
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - p2pnet
+
+volumes:
+  db_data:
+
+networks:
+  p2pnet:
+    driver: bridge
+
+
+
+
